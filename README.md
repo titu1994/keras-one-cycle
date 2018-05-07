@@ -92,14 +92,19 @@ Some notes :
 
 Similarly, it is possible to use the above learning rate and momentum values to calculate the optimal weight decay (`find_weight_decay_schedule.py`).
 
-**Note : Due to large learning rates acting as a strong regularizer, other regularization techniques like weight decay and dropout should be decreased significantly to properly train the model.
+**Note : Due to large learning rates acting as a strong regularizer, other regularization techniques like weight decay and dropout should be decreased significantly to properly train the model. **
 
 <centre>
 <img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/weight_decay.png?raw=true" width="100%" height="50%">
 </centre>
 
-
 It is best to search a range of regularization strength between 1e-3 to 1e-7 first, and then fine-search the region that provided the best overall plot.
+
+Some notes :
+
+- It is better to supply the `validation_data` here.
+- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
+- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
 
 ## Training with `OneCycleLR`
 Once we find the maximum learning rate, we can then move onto using the `OneCycleLR` callback with SGD to train our model.
