@@ -6,6 +6,19 @@ Implementation of One-Cycle Learning rate policy from the papers by Leslie N. Sm
         
 Contains two Keras callbacks, `LRFinder` and `OneCycleLR` which are ported from the PyTorch *Fast.ai* library.
 
+# What is One Cycle Learning Rate
+It is the combination of gradually increasing learning rate, and optionally, gradually decreasing the momentum during the first half of the cycle, then gradually decreasing the learning rate and optionally increasing the momentum during the latter half of the cycle. 
+
+Finally, in a certain percentage of the end of the cycle, the learning rate is sharply reduced every epoch. 
+
+The Learning rate schedule is visualized as : 
+
+<img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/one_cycle_lr.png?raw=true" height=50% width=100%> 
+
+The Optional Momentum schedule is visualized as : 
+
+<img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/one_cycle_momentum.png?raw=true" height=50% width=100%>
+
 # Usage
 
 ## Finding a good learning rate
