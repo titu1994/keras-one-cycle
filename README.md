@@ -23,6 +23,7 @@ lr_callback = LRFinder(num_samples, batch_size,
                        lr_scale='exp', save_dir='path/to/save/directory')
 
 # Ensure that number of epochs = 1 when calling fit()
+model.fit(X, Y, epochs=1, batch_size=batch_size, callbacks=[lr_callback])
 ```
 The above callback does a few things. 
 
@@ -59,6 +60,9 @@ from clr import OneCycleLR
 lr_manager = OneCycleLR(num_samples, num_epoch, batch_size, max_lr
                         end_percentage=0.1, scale_precentage=None,
                         maximum_momentum=0.95, minimum_momentum=0.85)
+                        
+model.fit(X, Y, epochs=EPOCHS, batch_size=batch_size, callbacks=[model_checkpoint, lr_manager], 
+          ...)
 ```
 
 There are many parameters, but a few of the important ones : 
