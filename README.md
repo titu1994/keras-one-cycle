@@ -119,7 +119,7 @@ See the notes in the `Finding the optimal momentum` section on how to interpret 
 
 Similarly, it is possible to use the above learning rate and momentum values to calculate the optimal weight decay (`find_weight_decay_schedule.py`).
 
-**Note : Due to large learning rates acting as a strong regularizer, other regularization techniques like weight decay and dropout should be decreased significantly to properly train the model. **
+**Note : Due to large learning rates acting as a strong regularizer, other regularization techniques like weight decay and dropout should be decreased significantly to properly train the model.**
 
 <centre>
 <img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/weight_decay.png?raw=true" width="100%" height="50%">
