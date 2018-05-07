@@ -26,7 +26,7 @@ x = Dense(1, activation='sigmoid')(x)
 model = Model(inp, x)
 
 clr_triangular = OneCycleLR(NUM_SAMPLES, NUM_EPOCHS, BATCH_SIZE, INITIAL_LR,
-                            end_percentage=0.1)
+                            end_percentage=0.1, scale_percentage=None)
 
 model.compile(optimizer=SGD(0.1), loss='binary_crossentropy', metrics=['accuracy'])
 

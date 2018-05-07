@@ -57,14 +57,14 @@ Once we find the maximum learning rate, we can then move onto using the `OneCycl
 from clr import OneCycleLR
 
 lr_manager = OneCycleLR(num_samples, num_epoch, batch_size, max_lr
-                        end_percentage=0.1, lr_scale=None,
+                        end_percentage=0.1, scale_precentage=None,
                         maximum_momentum=0.95, minimum_momentum=0.85)
 ```
 
 There are many parameters, but a few of the important ones : 
 - Must provide a lot of training information - `number of samples`, `number of epochs`, `batch size` and `max learning rate`
 - `end_percentage` is used to determine what percentage of the training epochs will be used for steep reduction in the learning rate. At its miminum, the lowest learning rate will be calculated as 1/1000th of the `max_lr` provided.
-- `lr_scale` is a confusing parameter. It dictates the scaling factor of the learning rate in the second half of the training cycle. **It is best to test this out visually using the `plot_clr.py` script to ensure there are no mistakes**. Leaving it as None defaults to using the same percentage as the provided `end_percentage`.
+- `scale_precentage` is a confusing parameter. It dictates the scaling factor of the learning rate in the second half of the training cycle. **It is best to test this out visually using the `plot_clr.py` script to ensure there are no mistakes**. Leaving it as None defaults to using the same percentage as the provided `end_percentage`.
 - `maximum/minimum_momentum` are preset according to the paper and `Fast.ai`. However, if you don't wish to use it, set both to the same value, generally `0.9` is preferred as the momentum value for SGD.
 
 # Results

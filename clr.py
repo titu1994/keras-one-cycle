@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import warnings
 
 from keras.callbacks import Callback
 from keras import backend as K
@@ -9,9 +10,9 @@ from keras import backend as K
 class OneCycleLR(Callback):
 
     def __init__(self, num_samples, num_epochs, batch_size, max_lr,
-                 end_percentage=0.1, end_scale=None,
+                 end_percentage=0.1, scale_percentage=None,
                  maximum_momentum=0.95, minimum_momentum=0.85,
-                 verbose=False):
+                 verbose=True):
         """ This callback implements a cyclical learning rate policy (CLR).
         This is a special case of Cyclic Learning Rates, where we have only 1 cycle.
         After the completion of 1 cycle, the learning rate will decrease rapidly to
@@ -26,10 +27,10 @@ class OneCycleLR(Callback):
                 this), and will increase to this value during the first cycle.
             end_percentage: Float. The percentage of all the epochs of training
                 that will be dedicated to sharply decreasing the learning
-                rate after the completion of 1 cycle.
-            end_scale: Float or None. If float, must be a value at least 100x
-                larger than the `end_percentage`. If None, it will compute the
-                end_scale automatically based on the `end_percentage`
+                rate after the completion of 1 cycle. Must be between 0 and 1.
+            scale_percentage: Float or None. If float, must be between 0 and 1.
+                If None, it will compute the scale_percentage automatically
+                based on the `end_percentage`.
             maximum_momentum: Optional. Sets the maximum momentum (initial)
                 value, which gradually drops to its lowest value in half-cycle,
                 then gradually increases again to stay constant at this max value.
@@ -48,13 +49,16 @@ class OneCycleLR(Callback):
         if end_percentage < 0. or end_percentage > 1.:
             raise ValueError("`end_percentage` must be between 0 and 1")
 
+        if scale_percentage is not None and (scale_percentage < 0. or scale_percentage > 1.):
+            raise ValueError("`scale_percentage` must be between 0 and 1")
+
         self.num_samples = num_samples
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.num_samples_per_batch = num_samples // batch_size
         self.initial_lr = max_lr
         self.end_percentage = end_percentage
-        self.scale = float(end_scale) if end_scale is not None else float(end_percentage * 100)
+        self.scale = float(scale_percentage) if scale_percentage is not None else float(end_percentage)
         self.max_momentum = maximum_momentum
         self.min_momentum = minimum_momentum
         self.verbose = verbose
@@ -92,15 +96,15 @@ class OneCycleLR(Callback):
         if self.clr_iterations > 2 * self.mid_cycle_id:
             current_percentage = (self.clr_iterations - 2 * self.mid_cycle_id)
             current_percentage /= float((self.num_iterations - 2 * self.mid_cycle_id))
-            new_lr = self.initial_lr * (1. + (current_percentage * (1. - 100.) / 100.)) / self.scale
+            new_lr = self.initial_lr * (1. + (current_percentage * (1. - 100.) / 100.)) * self.scale
 
         elif self.clr_iterations > self.mid_cycle_id:
             current_percentage = 1. - (self.clr_iterations - self.mid_cycle_id) / self.mid_cycle_id
-            new_lr = self.initial_lr * (1. + current_percentage * (self.scale - 1.)) / self.scale
+            new_lr = self.initial_lr * (1. + current_percentage * (self.scale * 100 - 1.)) * self.scale
 
         else:
             current_percentage = self.clr_iterations / self.mid_cycle_id
-            new_lr = self.initial_lr * (1. + current_percentage * (self.scale - 1.)) / self.scale
+            new_lr = self.initial_lr * (1. + current_percentage * (self.scale * 100 - 1.)) * self.scale
 
         if self.clr_iterations == self.num_iterations:
             self.clr_iterations = 0
@@ -265,6 +269,11 @@ class LRFinder(Callback):
     def on_train_begin(self, logs=None):
         self.current_epoch_ = 1
         K.set_value(self.model.optimizer.lr, self.initial_lr)
+
+    def on_epoch_begin(self, epoch, logs=None):
+        if self.current_epoch_ > 1:
+            warnings.warn("\n\nLearning rate finder should be used only with a single epoch. "
+                          "Hereafter, the callback will not measure the losses.\n\n")
 
     def on_batch_begin(self, batch, logs=None):
         self.current_batch_ += 1
