@@ -33,6 +33,7 @@ from clr import LRFinder
 
 lr_callback = LRFinder(num_samples, batch_size,
                        minimum_lr, maximum_lr,
+                       # validation_data=(X_val, Y_val),
                        lr_scale='exp', save_dir='path/to/save/directory')
 
 # Ensure that number of epochs = 1 when calling fit()
@@ -43,6 +44,13 @@ The above callback does a few things.
 - Must supply number of samples in the dataset (here, 50k from CIFAR 10) and the batch size that will be used during training.
 - `lr_scale` is set to `exp` - useful when searching over a large range of learning rates. Set to `linear` to search a smaller space.
 - `save_dir` - Automatic saving of the results of LRFinder on some directory path specified. This is highly encouraged.
+- `validation_data` - provide the validation data as a tuple to use that for the loss plot instead of the training batch loss. Since the validation dataset can be very large, we will randomly sample `k` batches (k * batch_size) from the validation set to provide quick estimate of the validation loss. The default value of `k` can be changed by changing `validation_sample_rate`
+- **Note : When using this, be careful about setting the learning rate, momentum and weight decay schedule. The loss plots will be more erratic due to the sampling of the validation set.**
+
+**NOTE 2 : **
+
+- It is faster to get the learning rate without using `validation_data`, and then find the weight decay and momentum based on that learning rate while using `validation_data`.
+- You can also use `LRFinder` to find the optimal weight decay and momentum values using the examples `find_momentum_schedule.py` and `find_weight_decay_schedule.py` inside `models/mobilenet/` folder.
 
 To visualize the plot, there are two ways - 
 
@@ -50,6 +58,8 @@ To visualize the plot, there are two ways -
 - Use class method `LRFinder.plot_schedule_from_file('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
 
 ## Interpreting the plot
+
+### Learning Rate
 
 <centre>
 <img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/lr.png?raw=true" width="100%" height="50%">
@@ -63,6 +73,33 @@ Consider the above plot from using the `LRFinder` on the MiniMobileNetV2 model. 
 - After the 0.5 point on the graph, the loss is noisy but doesn't decrease any further.
 - **-1.7** is the last relatively smooth portion before the **-1.5** region. To be safe, we can choose to move a little more to the left, closer to -1.8, but this will reduce the performance. 
 - It is usually important to visualize the first 2-3 epochs of `OneCycleLR` training with values close to these edges to determine which is the best. 
+
+### Momentum
+
+Using the above learning rate, use this information to next calculate the optimal momentum (`find_momentum_schedule.py`)
+
+<centre>
+<img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/momentum.png?raw=true" width="100%" height="50%">
+</centre>
+
+Some notes :
+
+- It is better to supply the `validation_data` here.
+- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
+- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
+
+### Weight Decay
+
+Similarly, it is possible to use the above learning rate and momentum values to calculate the optimal weight decay (`find_weight_decay_schedule.py`).
+
+**Note : Due to large learning rates acting as a strong regularizer, other regularization techniques like weight decay and dropout should be decreased significantly to properly train the model.
+
+<centre>
+<img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/weight_decay.png?raw=true" width="100%" height="50%">
+</centre>
+
+
+It is best to search a range of regularization strength between 1e-3 to 1e-7 first, and then fine-search the region that provided the best overall plot.
 
 ## Training with `OneCycleLR`
 Once we find the maximum learning rate, we can then move onto using the `OneCycleLR` callback with SGD to train our model.

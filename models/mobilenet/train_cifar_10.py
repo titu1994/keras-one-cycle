@@ -13,7 +13,7 @@ from keras.optimizers import SGD
 import numpy as np
 
 from clr import OneCycleLR
-from models.mobilenets import MiniMobileNetV2
+from models.mobilenet.mobilenets import MiniMobileNetV2
 
 if not os.path.exists('weights/'):
     os.makedirs('weights/')
@@ -23,7 +23,7 @@ model_checkpoint = ModelCheckpoint(weights_file, monitor='val_acc', save_best_on
                                    save_weights_only=True, mode='max')
 batch_size = 128
 nb_classes = 10
-nb_epoch = 50  # Only finding lr
+nb_epoch = 100  # Only finding lr
 data_augmentation = True
 
 # input image dimensions
@@ -54,10 +54,12 @@ X_test = (X_test - mean) / (std)
 # Learning rate finder callback setup
 num_samples = X_train.shape[0]
 
-lr_manager = OneCycleLR(num_samples, nb_epoch, batch_size, max_lr=0.02, verbose=True)
+lr_manager = OneCycleLR(num_samples, nb_epoch, batch_size, max_lr=0.02,
+                        maximum_momentum=0.9, verbose=True)
 
 # For training, the auxilary branch must be used to correctly train NASNet
 model = MiniMobileNetV2((img_rows, img_cols, img_channels), alpha=1.4,
+                        weight_decay=1e-6,
                         weights=None, classes=nb_classes)
 model.summary()
 

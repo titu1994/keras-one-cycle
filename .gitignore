@@ -103,6 +103,6 @@ ENV/
 # PyCharm
 .idea/*
 
-# Weigts
+# Weights
 weights/*.h5
-models/weights/*.h5
+models/**/*.h5

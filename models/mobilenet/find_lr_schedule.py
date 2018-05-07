@@ -13,7 +13,7 @@ from keras.optimizers import SGD
 import numpy as np
 
 from clr import LRFinder
-from models.mobilenets import MiniMobileNetV2
+from models.mobilenet.mobilenets import MiniMobileNetV2
 
 if not os.path.exists('weights/'):
     os.makedirs('weights/')
@@ -56,12 +56,21 @@ X_test = (X_test - mean) / (std)
 num_samples = X_train.shape[0]
 
 # Exponential lr finder
+# USE THIS FOR A LARGE RANGE SEARCH
+# Uncomment the validation_data flag to reduce speed but get a better idea of the learning rate
 lr_finder = LRFinder(num_samples, batch_size, minimum_lr=1e-3, maximum_lr=10.,
-                     lr_scale='exp', save_dir='weights/', verbose=True)
+                     lr_scale='exp',
+                     # validation_data=(X_test, Y_test),  # use the validation data for losses
+                     validation_sample_rate=5,
+                     save_dir='weights/', verbose=True)
 
 # Linear lr finder
-# lr_finder = LRFinder(num_samples, batch_size, minimum_lr=1e-2, maximum_lr=5.0,
-#                      lr_scale='linear', save_dir='weights/', verbose=True)
+# USE THIS FOR A CLOSE SEARCH
+# Uncomment the validation_data flag to reduce speed but get a better idea of the learning rate
+# lr_finder = LRFinder(num_samples, batch_size, minimum_lr=1e-3, maximum_lr=1e-2,
+#                      lr_scale='linear',
+#                      # validation_data=(X_test, y_test),  # use the validation data for losses
+#                      save_dir='weights/', verbose=True)
 
 # plot the previous values if present
 LRFinder.plot_schedule_from_file('weights/', clip_beginning=10, clip_endding=5)
@@ -95,7 +104,7 @@ else:
         featurewise_std_normalization=False,  # divide inputs by std of the dataset
         samplewise_std_normalization=False,  # divide each input by its std
         zca_whitening=False,  # apply ZCA whitening
-        rotation_range=90,  # randomly rotate images in the range (degrees, 0 to 180)
+        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
         width_shift_range=0,  # randomly shift images horizontally (fraction of total width)
         height_shift_range=0,  # randomly shift images vertically (fraction of total height)
         horizontal_flip=True,  # randomly flip images

@@ -87,6 +87,7 @@ def MiniMobileNetV2(input_shape=None,
                     expansion_factor=6,
                     depth_multiplier=1,
                     dropout=0.,
+                    weight_decay=0.,
                     include_top=True,
                     weights=None,
                     input_tensor=None,
@@ -127,6 +128,7 @@ def MiniMobileNetV2(input_shape=None,
         depth_multiplier: depth multiplier for depthwise convolution
             (also called the resolution multiplier)
         dropout: dropout rate
+        weight_decay: Weight decay factor.
         include_top: whether to include the fully-connected
             layer at the top of the network.
         weights: `None` (random initialization) or
@@ -239,30 +241,30 @@ def MiniMobileNetV2(input_shape=None,
         else:
             img_input = input_tensor
 
-    x = _conv_block(img_input, 32, alpha, bn_epsilon=1e-3, bn_momentum=0.99)
+    x = _conv_block(img_input, 32, alpha, bn_epsilon=1e-3, bn_momentum=0.99, weight_decay=weight_decay)
     x = _depthwise_conv_block_v2(x, 16, alpha, 1, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=1)
+                                 weight_decay=weight_decay, block_id=1)
 
     x = _depthwise_conv_block_v2(x, 24, alpha, expansion_factor, depth_multiplier, block_id=2,
-                                 bn_epsilon=1e-3, bn_momentum=0.99, strides=(2, 2))
+                                 bn_epsilon=1e-3, bn_momentum=0.99, weight_decay=weight_decay, strides=(2, 2))
     x = _depthwise_conv_block_v2(x, 24, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=3)
+                                 weight_decay=weight_decay, block_id=3)
 
     x = _depthwise_conv_block_v2(x, 32, alpha, expansion_factor, depth_multiplier, block_id=4,
-                                 bn_epsilon=1e-3, bn_momentum=0.99)
+                                 bn_epsilon=1e-3, bn_momentum=0.99, weight_decay=weight_decay)
     x = _depthwise_conv_block_v2(x, 32, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=5)
+                                 weight_decay=weight_decay, block_id=5)
     x = _depthwise_conv_block_v2(x, 32, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=6)
+                                 weight_decay=weight_decay, block_id=6)
 
     x = _depthwise_conv_block_v2(x, 64, alpha, expansion_factor, depth_multiplier, block_id=7,
-                                 bn_epsilon=1e-3, bn_momentum=0.99, strides=(2, 2))
+                                 bn_epsilon=1e-3, bn_momentum=0.99, weight_decay=weight_decay, strides=(2, 2))
     x = _depthwise_conv_block_v2(x, 64, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=8)
+                                 weight_decay=weight_decay, block_id=8)
     x = _depthwise_conv_block_v2(x, 64, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=9)
+                                 weight_decay=weight_decay, block_id=9)
     x = _depthwise_conv_block_v2(x, 64, alpha, expansion_factor, depth_multiplier, bn_epsilon=1e-3, bn_momentum=0.99,
-                                 block_id=10)
+                                 weight_decay=weight_decay, block_id=10)
 
     if alpha <= 1.0:
         penultimate_filters = 1280
@@ -282,6 +284,8 @@ def MiniMobileNetV2(input_shape=None,
         x = Reshape(shape, name='reshape_1')(x)
         x = Dropout(dropout, name='dropout')(x)
         x = Conv2D(classes, (1, 1),
+                   kernel_initializer=initializers.he_normal(),
+                   kernel_regularizer=regularizers.l2(weight_decay),
                    padding='same', name='conv_preds')(x)
         x = Activation('softmax', name='act_softmax')(x)
         x = Reshape((classes,), name='reshape_2')(x)
@@ -351,7 +355,7 @@ def _make_divisible(v, divisor=8, min_value=8):
 
 
 def _conv_block(inputs, filters, alpha, kernel=(3, 3), strides=(1, 1), bn_epsilon=1e-3,
-                bn_momentum=0.99, block_id=1):
+                bn_momentum=0.99, weight_decay=0., block_id=1):
     """Adds an initial convolution layer (with batch normalization and relu6).
     # Arguments
         inputs: Input tensor of shape `(rows, cols, 3)`
@@ -402,6 +406,8 @@ def _conv_block(inputs, filters, alpha, kernel=(3, 3), strides=(1, 1), bn_epsilo
                padding='same',
                use_bias=False,
                strides=strides,
+               kernel_initializer=initializers.he_normal(),
+               kernel_regularizer=regularizers.l2(weight_decay),
                name='conv%d' % block_id)(inputs)
     x = BatchNormalization(axis=channel_axis, momentum=bn_momentum, epsilon=bn_epsilon,
                            name='conv%d_bn' % block_id)(x)
@@ -410,7 +416,7 @@ def _conv_block(inputs, filters, alpha, kernel=(3, 3), strides=(1, 1), bn_epsilo
 
 def _depthwise_conv_block_v2(inputs, pointwise_conv_filters, alpha, expansion_factor,
                              depth_multiplier=1, strides=(1, 1), bn_epsilon=1e-3,
-                             bn_momentum=0.99, block_id=1):
+                             bn_momentum=0.99, weight_decay=0.0, block_id=1):
     """Adds a depthwise convolution block V2.
     A depthwise convolution V2 block consists of a depthwise conv,
     batch normalization, relu6, pointwise convolution,
@@ -467,6 +473,8 @@ def _depthwise_conv_block_v2(inputs, pointwise_conv_filters, alpha, expansion_fa
                    padding='same',
                    use_bias=False,
                    strides=(1, 1),
+                   kernel_initializer=initializers.he_normal(),
+                   kernel_regularizer=regularizers.l2(weight_decay),
                    name='conv_expand_%d' % block_id)(inputs)
         x = BatchNormalization(axis=channel_axis, momentum=bn_momentum, epsilon=bn_epsilon,
                                name='conv_expand_%d_bn' % block_id)(x)
@@ -479,6 +487,8 @@ def _depthwise_conv_block_v2(inputs, pointwise_conv_filters, alpha, expansion_fa
                         depth_multiplier=depth_multiplier,
                         strides=strides,
                         use_bias=False,
+                        depthwise_initializer=initializers.he_normal(),
+                        depthwise_regularizer=regularizers.l2(weight_decay),
                         name='conv_dw_%d' % block_id)(x)
     x = BatchNormalization(axis=channel_axis, momentum=bn_momentum, epsilon=bn_epsilon,
                            name='conv_dw_%d_bn' % block_id)(x)
@@ -488,6 +498,8 @@ def _depthwise_conv_block_v2(inputs, pointwise_conv_filters, alpha, expansion_fa
                padding='same',
                use_bias=False,
                strides=(1, 1),
+               kernel_initializer=initializers.he_normal(),
+               kernel_regularizer=regularizers.l2(weight_decay),
                name='conv_pw_%d' % block_id)(x)
     x = BatchNormalization(axis=channel_axis, momentum=bn_momentum, epsilon=bn_epsilon,
                            name='conv_pw_%d_bn' % block_id)(x)

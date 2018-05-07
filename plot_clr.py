@@ -13,7 +13,7 @@ plt.style.use('seaborn-white')
 NUM_SAMPLES = 2000
 NUM_EPOCHS = 100
 BATCH_SIZE = 500
-INITIAL_LR = 0.1
+MAX_LR = 0.1
 
 # Data
 X = np.random.rand(NUM_SAMPLES, 10)
@@ -25,7 +25,7 @@ x = Dense(5, activation='relu')(inp)
 x = Dense(1, activation='sigmoid')(x)
 model = Model(inp, x)
 
-clr_triangular = OneCycleLR(NUM_SAMPLES, NUM_EPOCHS, BATCH_SIZE, INITIAL_LR,
+clr_triangular = OneCycleLR(NUM_SAMPLES, NUM_EPOCHS, BATCH_SIZE, MAX_LR,
                             end_percentage=0.1, scale_percentage=None)
 
 model.compile(optimizer=SGD(0.1), loss='binary_crossentropy', metrics=['accuracy'])
@@ -42,5 +42,5 @@ plt.show()
 plt.xlabel('Training Iterations')
 plt.ylabel('Momentum')
 plt.title("CLR")
-plt.plot(clr_triangular.history['momentum'])
+plt.plot(clr_triangular.history['weight_decay'])
 plt.show()
