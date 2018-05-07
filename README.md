@@ -33,7 +33,7 @@ The above callback does a few things.
 To visualize the plot, there are two ways - 
 
 - Use `lr_callback.plot_schedule()` after the fit() call. This uses the current training session results.
-- Use `LRFinder.plot_schedule_from_file('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
+- Use class method `LRFinder.plot_schedule_from_file('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
 
 ## Interpreting the plot
 
