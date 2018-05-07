@@ -57,6 +57,36 @@ To visualize the plot, there are two ways -
 - Use `lr_callback.plot_schedule()` after the fit() call. This uses the current training session results.
 - Use class method `LRFinder.plot_schedule_from_file('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
 
+## Finding the optimal Momentum
+
+Use the `find_momentum_schedule.py` script inside `models/mobilenet/` for an example.
+
+Some notes :
+
+- Use a grid search over a few possible momentum values, such as `[0.8, 0.85, 0.9, 0.95, 0.99]`. Use `linear` as the `lr_scale` argument value.
+- Set the momentum value manually to the SGD optimizer before compiling the model.
+- Plot the curve at the end and visually see which momentum value yields the least noisy / lowest losses overall on the plot. The absolute value of the loss plot is not very important as much as the curve.
+
+- It is better to supply the `validation_data` here.
+- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
+- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
+
+## Finding the optimal Weight Decay
+
+Use the `find_weight_decay_schedule.py` script inside `models/mobilenet/` for an example
+
+Some notes :
+
+- Use a grid search over a few weight decay values, such as `[1e-3, 1e-4, 1e-5, 1e-6, 1e-7]`. Call this "coarse search" and use `linear` for the `lr_scale` argument.
+- Use a grid search over a select few weight decay values, such as `[3e-7, 1e-7, 3e-6]`. Call this "fine search" and use `linear` scale for the `lr_scale` argument.
+- Set the weight decay value manually to the model when building the model.
+- Plot the curve at the end and visually see which weight decay value yields the least noisy / lowest losses overall on the plot. The absolute value of the loss plot is not very important as much as the curve.
+
+- It is better to supply the `validation_data` here.
+- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
+- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
+
+
 ## Interpreting the plot
 
 ### Learning Rate
@@ -82,11 +112,6 @@ Using the above learning rate, use this information to next calculate the optima
 <img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/momentum.png?raw=true" width="100%" height="50%">
 </centre>
 
-Some notes :
-
-- It is better to supply the `validation_data` here.
-- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
-- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
 
 ### Weight Decay
 
@@ -99,12 +124,6 @@ Similarly, it is possible to use the above learning rate and momentum values to 
 </centre>
 
 It is best to search a range of regularization strength between 1e-3 to 1e-7 first, and then fine-search the region that provided the best overall plot.
-
-Some notes :
-
-- It is better to supply the `validation_data` here.
-- The plot will be very noisy, so if you wish, can use a larger value of `loss_smoothing_beta` (such as `0.99` or `0.995`)
-- The actual curve values doesnt matter as much as what is overall curve movement. Choose the value which is more steady and tries to get the lowest value even at large learning rates.
 
 ## Training with `OneCycleLR`
 Once we find the maximum learning rate, we can then move onto using the `OneCycleLR` callback with SGD to train our model.
