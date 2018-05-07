@@ -112,6 +112,7 @@ Using the above learning rate, use this information to next calculate the optima
 <img src="https://github.com/titu1994/keras-one-cycle/blob/master/images/momentum.png?raw=true" width="100%" height="50%">
 </centre>
 
+See the notes in the `Finding the optimal momentum` section on how to interpret the plot.
 
 ### Weight Decay
 
@@ -124,6 +125,8 @@ Similarly, it is possible to use the above learning rate and momentum values to 
 </centre>
 
 It is best to search a range of regularization strength between 1e-3 to 1e-7 first, and then fine-search the region that provided the best overall plot.
+
+See the notes in the `Finding the optimal weight decay` section on how to interpret the plot.
 
 ## Training with `OneCycleLR`
 Once we find the maximum learning rate, we can then move onto using the `OneCycleLR` callback with SGD to train our model.
