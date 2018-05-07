@@ -35,12 +35,12 @@ model.fit(X, Y, batch_size=BATCH_SIZE, epochs=NUM_EPOCHS, callbacks=[clr_triangu
 
 plt.xlabel('Training Iterations')
 plt.ylabel('Learning Rate')
-plt.title("CLR - 'triangular' Policy")
+plt.title("CLR")
 plt.plot(clr_triangular.history['lr'])
 plt.show()
 
 plt.xlabel('Training Iterations')
 plt.ylabel('Momentum')
-plt.title("CLR - 'triangular' Policy")
+plt.title("CLR")
 plt.plot(clr_triangular.history['momentum'])
 plt.show()
