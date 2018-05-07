@@ -1,5 +1,5 @@
 # One Cycle Learning Rate Policy for Keras
-Implementation of One-Cycle Learning rate policy from the papers by Leslie N. Smith and port of the `Fast.ai` equivalent methods.
+Implementation of One-Cycle Learning rate policy from the papers by Leslie N. Smith.
 
 - [A disciplined approach to neural network hyper-parameters: Part 1 -- learning rate, batch size, momentum, and weight decay](https://arxiv.org/abs/1803.09820)
 - [Super-Convergence: Very Fast Training of Residual Networks Using Large Learning Rates](https://arxiv.org/abs/1708.07120)
