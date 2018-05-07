@@ -105,3 +105,4 @@ ENV/
 
 # Weigts
 weights/*.h5
+models/weights/*.h5

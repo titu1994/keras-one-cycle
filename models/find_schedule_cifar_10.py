@@ -9,11 +9,11 @@ from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
-from keras.optimizers import Adam, SGD
+from keras.optimizers import SGD
 import numpy as np
 
 from clr import LRFinder
-from mobilenets import MiniMobileNetV2
+from models.mobilenets import MiniMobileNetV2
 
 if not os.path.exists('weights/'):
     os.makedirs('weights/')
