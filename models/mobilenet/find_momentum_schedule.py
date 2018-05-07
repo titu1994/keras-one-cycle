@@ -118,11 +118,11 @@ MOMENTUMS = [0.9, 0.95, 0.99]
 for momentum in MOMENTUMS:
     directory = 'weights/momentum/momentum-%s/' % str(momentum)
 
-    losses, lrs = LRFinder.restore_schedule_from_file(directory, 10, 5)
+    losses, lrs = LRFinder.restore_schedule_from_dir(directory, 10, 5)
     plt.plot(lrs, losses, label='momentum=%0.2f' % momentum)
 
 plt.title("Momentum")
 plt.xlabel("Learning rate")
-plt.ylabel("Loss")
+plt.ylabel("Validation Loss")
 plt.legend()
 plt.show()

@@ -436,7 +436,7 @@ class LRFinder(Callback):
         plt.show()
 
     @classmethod
-    def restore_schedule_from_file(cls, directory, clip_beginning=None, clip_endding=None):
+    def restore_schedule_from_dir(cls, directory, clip_beginning=None, clip_endding=None):
         """
         Loads the training history from the saved numpy files in the given directory.
 
@@ -507,9 +507,9 @@ class LRFinder(Callback):
             print("Matplotlib not found. Please use `pip install matplotlib` first.")
             return
 
-        losses, lrs = cls.restore_schedule_from_file(directory,
-                                                     clip_beginning=clip_beginning,
-                                                     clip_endding=clip_endding)
+        losses, lrs = cls.restore_schedule_from_dir(directory,
+                                                    clip_beginning=clip_beginning,
+                                                    clip_endding=clip_endding)
 
         if losses is None or lrs is None:
             return

@@ -45,9 +45,10 @@ The above callback does a few things.
 - `lr_scale` is set to `exp` - useful when searching over a large range of learning rates. Set to `linear` to search a smaller space.
 - `save_dir` - Automatic saving of the results of LRFinder on some directory path specified. This is highly encouraged.
 - `validation_data` - provide the validation data as a tuple to use that for the loss plot instead of the training batch loss. Since the validation dataset can be very large, we will randomly sample `k` batches (k * batch_size) from the validation set to provide quick estimate of the validation loss. The default value of `k` can be changed by changing `validation_sample_rate`
-- **Note : When using this, be careful about setting the learning rate, momentum and weight decay schedule. The loss plots will be more erratic due to the sampling of the validation set.**
 
-**NOTE 2 : **
+**Note : When using this, be careful about setting the learning rate, momentum and weight decay schedule. The loss plots will be more erratic due to the sampling of the validation set.**
+
+**NOTE 2 :**
 
 - It is faster to get the learning rate without using `validation_data`, and then find the weight decay and momentum based on that learning rate while using `validation_data`.
 - You can also use `LRFinder` to find the optimal weight decay and momentum values using the examples `find_momentum_schedule.py` and `find_weight_decay_schedule.py` inside `models/mobilenet/` folder.
@@ -55,7 +56,7 @@ The above callback does a few things.
 To visualize the plot, there are two ways - 
 
 - Use `lr_callback.plot_schedule()` after the fit() call. This uses the current training session results.
-- Use class method `LRFinder.plot_schedule_from_file('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
+- Use class method `LRFinder.plot_schedule_from_dir('path/to/save/directory')` to visualize the plot separately from the training session. This only works if you used the `save_dir` argument to save the results of the search to some location.
 
 ## Finding the optimal Momentum
 
@@ -150,7 +151,9 @@ There are many parameters, but a few of the important ones :
 
 # Results
 
-**-1.7** is therefore chosen to be the maximum learning rate (in log10 space) for the `OneCycleLR` schedule. Since this is in log10 scale, we use `10 ^ (x)` to get the actual learning maximum learning rate. Here, `10 ^ -1.7 ~ 0.019999`. Therefore, we round up to a **maximum learning rate of 0.02**
+- **-1.7** is chosen to be the maximum learning rate (in log10 space) for the `OneCycleLR` schedule. Since this is in log10 scale, we use `10 ^ (x)` to get the actual learning maximum learning rate. Here, `10 ^ -1.7 ~ 0.019999`. Therefore, we round up to a **maximum learning rate of 0.02**
+- **0.9** is chosen as the maximum momentum from the momentum plot. Using Cyclic Momentum updates, choose a slightly lower value (**0.85**) as the minimum for faster training.
+- **3e-6** is chosen as the the weight decay factor.
 
 For the MiniMobileNetV2 model, 2 passes of the OneCycle LR with SGD (40 epochs - max lr = 0.02, 30 epochs - max lr = 0.005) obtained 90.33%. This may not seem like much, but this is a model with only 650k parameters, and in comparison, the same model trained on Adam with initial learning rate 2e-3 did not converge to the same score in over 100 epochs (89.14%). 
 

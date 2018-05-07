@@ -124,11 +124,11 @@ WEIGHT_DECAY_FACTORS = [1e-7, 3e-7, 3e-6]
 for weight_decay in WEIGHT_DECAY_FACTORS:
     directory = 'weights/weight_decay/weight_decay-%s/' % str(weight_decay)
 
-    losses, lrs = LRFinder.restore_schedule_from_file(directory, 10, 5)
+    losses, lrs = LRFinder.restore_schedule_from_dir(directory, 10, 5)
     plt.plot(lrs, losses, label='weight_decay=%0.7f' % weight_decay)
 
 plt.title("Weight Decay")
 plt.xlabel("Learning rate")
-plt.ylabel("Loss")
+plt.ylabel("Validation Loss")
 plt.legend()
 plt.show()
