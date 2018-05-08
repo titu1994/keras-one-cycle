@@ -26,11 +26,15 @@ x = Dense(1, activation='sigmoid')(x)
 model = Model(inp, x)
 
 clr_triangular = OneCycleLR(NUM_SAMPLES, NUM_EPOCHS, BATCH_SIZE, MAX_LR,
-                            end_percentage=0.1, scale_percentage=None)
+                            end_percentage=0.2, scale_percentage=0.2)
 
 model.compile(optimizer=SGD(0.1), loss='binary_crossentropy', metrics=['accuracy'])
 
 model.fit(X, Y, batch_size=BATCH_SIZE, epochs=NUM_EPOCHS, callbacks=[clr_triangular], verbose=0)
+
+
+print("LR Range : ", min(clr_triangular.history['lr']), max(clr_triangular.history['lr']))
+print("Momentum Range : ", min(clr_triangular.history['momentum']), max(clr_triangular.history['momentum']))
 
 
 plt.xlabel('Training Iterations')
@@ -42,5 +46,5 @@ plt.show()
 plt.xlabel('Training Iterations')
 plt.ylabel('Momentum')
 plt.title("CLR")
-plt.plot(clr_triangular.history['weight_decay'])
+plt.plot(clr_triangular.history['momentum'])
 plt.show()
