@@ -105,4 +105,3 @@ ENV/
 
 # Weights
 weights/*.h5
-models/**/*.h5

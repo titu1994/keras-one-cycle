@@ -13,12 +13,12 @@ from keras.optimizers import SGD
 import numpy as np
 
 from clr import LRFinder
-from models.mobilenet.mobilenets import MiniMobileNetV2
+from models.small.model import MiniVGG
 
 if not os.path.exists('weights/'):
     os.makedirs('weights/')
 
-weights_file = 'weights/mobilenet_v2_schedule.h5'
+weights_file = 'weights/small_vgg_v2_schedule.h5'
 model_checkpoint = ModelCheckpoint(weights_file, monitor='val_acc', save_best_only=True,
                                    save_weights_only=True, mode='max')
 
@@ -58,9 +58,9 @@ num_samples = X_train.shape[0]
 # Exponential lr finder
 # USE THIS FOR A LARGE RANGE SEARCH
 # Uncomment the validation_data flag to reduce speed but get a better idea of the learning rate
-lr_finder = LRFinder(num_samples, batch_size, minimum_lr=1e-3, maximum_lr=10.,
+lr_finder = LRFinder(num_samples, batch_size, minimum_lr=1e-5, maximum_lr=10.,
                      lr_scale='exp',
-                     # validation_data=(X_test, Y_test),  # use the validation data for losses
+                     validation_data=(X_test, Y_test),  # use the validation data for losses
                      validation_sample_rate=5,
                      save_dir='weights/', verbose=True)
 
@@ -78,8 +78,8 @@ LRFinder.plot_schedule_from_file('weights/', clip_beginning=10, clip_endding=5)
 
 # For training, the auxilary branch must be used to correctly train NASNet
 
-model = MiniMobileNetV2((img_rows, img_cols, img_channels), alpha=1.4,
-                        dropout=0, weights=None, classes=nb_classes)
+model = MiniVGG((img_rows, img_cols, img_channels),
+                dropout=0, weights=None, classes=nb_classes)
 model.summary()
 
 optimizer = SGD(lr=0.1, momentum=0.9, nesterov=True)
