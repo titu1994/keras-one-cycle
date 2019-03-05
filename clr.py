@@ -274,7 +274,7 @@ class LRFinder(Callback):
         self.save_dir = save_dir
         self.verbose = verbose
 
-        self.num_batches_ = num_samples // batch_size - 1
+        self.num_batches_ = num_samples // batch_size
         self.current_lr_ = minimum_lr
 
         if lr_scale == 'exp':
