@@ -76,8 +76,7 @@ model.summary()
 
 # These values will be overridden by the above callback
 optimizer = SGD(lr=0.0025, momentum=0.95, nesterov=True)
-model.compile(
-    loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
 model.load_weights(weights_file)
 
@@ -98,8 +97,7 @@ else:
     datagen = ImageDataGenerator(
         featurewise_center=False,  # set input mean to 0 over the dataset
         samplewise_center=False,  # set each sample mean to 0
-        featurewise_std_normalization=
-        False,  # divide inputs by std of the dataset
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
         samplewise_std_normalization=False,  # divide each input by its std
         zca_whitening=False,  # apply ZCA whitening
         # randomly rotate images in the range (degrees, 0 to 180)
