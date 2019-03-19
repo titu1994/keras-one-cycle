@@ -48,14 +48,12 @@ class OneCycleLR(Callback):
         if end_percentage < 0. or end_percentage > 1.:
             raise ValueError("`end_percentage` must be between 0 and 1")
 
-        if scale_percentage is not None and \
-                (scale_percentage < 0. or scale_percentage > 1.):
+        if scale_percentage is not None and (scale_percentage < 0. or scale_percentage > 1.):
             raise ValueError("`scale_percentage` must be between 0 and 1")
 
         self.initial_lr = max_lr
         self.end_percentage = end_percentage
-        self.scale = float(scale_percentage) if scale_percentage is not None \
-            else float(end_percentage)
+        self.scale = float(scale_percentage) if scale_percentage is not None else float(end_percentage)
         self.max_momentum = maximum_momentum
         self.min_momentum = minimum_momentum
         self.verbose = verbose
@@ -96,8 +94,7 @@ class OneCycleLR(Callback):
         """
         if self.clr_iterations > 2 * self.mid_cycle_id:
             current_percentage = (self.clr_iterations - 2 * self.mid_cycle_id)
-            current_percentage /= float(
-                (self.num_iterations - 2 * self.mid_cycle_id))
+            current_percentage /= float((self.num_iterations - 2 * self.mid_cycle_id))
             new_lr = self.initial_lr * (1. + (current_percentage *
                                               (1. - 100.) / 100.)) * self.scale
 
@@ -133,9 +130,8 @@ class OneCycleLR(Callback):
             new_momentum = self.max_momentum
 
         elif self.clr_iterations > self.mid_cycle_id:
-            current_percentage = 1. - (
-                (self.clr_iterations - self.mid_cycle_id) / float(
-                    self.mid_cycle_id))
+            current_percentage = 1. - ((self.clr_iterations - self.mid_cycle_id) / float(
+                                        self.mid_cycle_id))
             new_momentum = self.max_momentum - current_percentage * (
                 self.max_momentum - self.min_momentum)
 
@@ -157,18 +153,20 @@ class OneCycleLR(Callback):
         if self.steps is not None:
             self.num_iterations = self.epochs * self.steps
         else:
-            self.num_iterations = self.epochs * self.samples // self.batch_size
+            if self.samples % self.batch_size == 0:
+                remainder = 0
+            else:
+                remainder = 
+            self.num_iterations = (self.epochs + remainder) * self.samples // self.batch_size
 
-        self.mid_cycle_id = int(
-            self.num_iterations * ((1. - self.end_percentage)) / float(2))
+        self.mid_cycle_id = int(self.num_iterations * ((1. - self.end_percentage)) / float(2))
 
         self._reset()
         K.set_value(self.model.optimizer.lr, self.compute_lr())
 
         if self._update_momentum:
             if not hasattr(self.model.optimizer, 'momentum'):
-                raise ValueError(
-                    "Momentum can be updated only on SGD optimizer !")
+                raise ValueError("Momentum can be updated only on SGD optimizer !")
 
             new_momentum = self.compute_momentum()
             K.set_value(self.model.optimizer.momentum, new_momentum)
@@ -185,8 +183,7 @@ class OneCycleLR(Callback):
 
         if self._update_momentum:
             if not hasattr(self.model.optimizer, 'momentum'):
-                raise ValueError(
-                    "Momentum can be updated only on SGD optimizer !")
+                raise ValueError("Momentum can be updated only on SGD optimizer !")
 
             new_momentum = self.compute_momentum()
 
@@ -290,9 +287,7 @@ class LRFinder(Callback):
             if validation_sample_rate > 0 or validation_sample_rate < 0:
                 self.validation_sample_rate = validation_sample_rate
             else:
-                raise ValueError(
-                    "`validation_sample_rate` must be a positive or negative integer other than o"
-                )
+                raise ValueError("`validation_sample_rate` must be a positive or negative integer other than o")
         else:
             self.use_validation_set = False
             self.validation_sample_rate = 0
@@ -311,7 +306,7 @@ class LRFinder(Callback):
         self.current_lr_ = minimum_lr
 
         if lr_scale == 'exp':
-            self.lr_multiplier_ = (maximum_lr / float(minimum_lr))**(
+            self.lr_multiplier_ = (maximum_lr / float(minimum_lr)) ** (
                 1. / float(self.num_batches_))
         else:
             extra_batch = int((num_samples % batch_size) != 0)
@@ -320,8 +315,7 @@ class LRFinder(Callback):
 
         # If negative, use entire validation set
         if self.validation_sample_rate < 0:
-            self.validation_sample_rate = self.validation_data[0].shape[
-                0] // batch_size
+            self.validation_sample_rate = self.validation_data[0].shape[0] // batch_size
 
         self.current_batch_ = 0
         self.current_epoch_ = 0
@@ -365,8 +359,7 @@ class LRFinder(Callback):
             x = X[idx]
             y = Y[idx]
 
-            values = self.model.evaluate(
-                x, y, batch_size=self.batch_size, verbose=False)
+            values = self.model.evaluate(x, y, batch_size=self.batch_size, verbose=False)
             loss = values[0]
         else:
             loss = logs['loss']
@@ -383,9 +376,8 @@ class LRFinder(Callback):
                 self.stopping_criterion_factor * self.best_loss_):
 
             if self.verbose:
-                print(
-                    " - LRFinder: Skipping iteration since loss is %d times as large as best loss (%0.4f)"
-                    % (self.stopping_criterion_factor, self.best_loss_))
+                print(" - LRFinder: Skipping iteration since loss is %d times as large as best loss (%0.4f)"
+                      % (self.stopping_criterion_factor, self.best_loss_))
             return
 
         if running_loss < self.best_loss_ or self.current_batch_ == 1:
@@ -430,9 +422,8 @@ class LRFinder(Callback):
             np.save(lrs_path, self.lrs)
 
             if self.verbose:
-                print(
-                    "\tLR Finder : Saved the losses and learning rate values in path : {%s}"
-                    % (self.save_dir))
+                print("\tLR Finder : Saved the losses and learning rate values in path : {%s}"
+                      % (self.save_dir))
 
         self.current_epoch_ += 1
 
@@ -556,9 +547,7 @@ class LRFinder(Callback):
             import matplotlib.pyplot as plt
             plt.style.use('seaborn-white')
         except ImportError:
-            print(
-                "Matplotlib not found. Please use `pip install matplotlib` first."
-            )
+            print("Matplotlib not found. Please use `pip install matplotlib` first.")
             return
 
         losses, lrs = cls.restore_schedule_from_dir(
