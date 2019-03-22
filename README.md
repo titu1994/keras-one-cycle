@@ -24,7 +24,7 @@ The Optional Momentum schedule is visualized as :
 ## Finding a good learning rate
 Use `LRFinder` to obtain a loss plot, and visually inspect it to determine the initial loss plot. Provided below is an example, used for the `MiniMobileNetV2` model.
 
-An example script has been provided in `find_schedule_cifar_10.py`.
+An example script has been provided in `find_lr_schedule.py` inside the `models/mobilenet/`.
 
 Essentially,
 
