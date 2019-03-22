@@ -67,9 +67,10 @@ from keras.utils import conv_utils
 from keras.utils.data_utils import get_file
 from keras.engine.topology import get_source_inputs
 from keras.engine import InputSpec
-from keras.applications.imagenet_utils import _obtain_input_shape
-from keras.applications.inception_v3 import preprocess_input
-from keras.applications.imagenet_utils import decode_predictions
+# changed the next 3 lines from keras.applications to keras_applications for Keras version 2.2.4
+from keras_applications.imagenet_utils import _obtain_input_shape
+from keras_applications.inception_v3 import preprocess_input
+from keras_applications.imagenet_utils import decode_predictions
 from keras import backend as K
 
 import tensorflow as tf
