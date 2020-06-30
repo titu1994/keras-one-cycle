@@ -9,6 +9,8 @@ from keras import backend as K
 # Code is ported from https://github.com/fastai/fastai
 class OneCycleLR(Callback):
     def __init__(self,
+                 num_samples,
+                 batch_size,
                  max_lr,
                  end_percentage=0.1,
                  scale_percentage=None,
@@ -21,6 +23,8 @@ class OneCycleLR(Callback):
         100th its initial lowest value.
 
         # Arguments:
+            num_samples: Integer. Number of samples in the dataset.
+            batch_size: Integer. Batch size during training.
             max_lr: Float. Initial learning rate. This also sets the
                 starting learning rate (which will be 10x smaller than
                 this), and will increase to this value during the first cycle.
@@ -67,8 +71,8 @@ class OneCycleLR(Callback):
         self.history = {}
 
         self.epochs = None
-        self.batch_size = None
-        self.samples = None
+        self.batch_size = batch_size
+        self.samples = num_samples
         self.steps = None
         self.num_iterations = None
         self.mid_cycle_id = None
@@ -146,8 +150,10 @@ class OneCycleLR(Callback):
         logs = logs or {}
 
         self.epochs = self.params['epochs']
-        self.batch_size = self.params['batch_size']
-        self.samples = self.params['samples']
+        # When fit generator is used
+        # self.params don't have the elements 'batch_size' and 'samples'
+        # self.batch_size = self.params['batch_size']
+        # self.samples = self.params['samples']
         self.steps = self.params['steps']
 
         if self.steps is not None:
